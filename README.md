@@ -1,5 +1,6 @@
 # nav导航站使用教程
 一个私人的导航网站，可服务器node部署，也可cloudflare 
+**网站预览:**[https://www.sink.us.kg](https://www.sink.us.kg)
 ---
 ## 服务器node部署(环境要求node+MySQL)
 ### 1、拉取该项目到本地
