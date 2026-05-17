@@ -27,5 +27,9 @@ ADMIN_PASSWORD=123456
 # Express 服务器监听端口
 PORT=3001
 ```
+### 4、运行
+`
+node server.js
+`
 ## CloudFlare部署
 详见[CloudFlare部署教程](https://github.com/Xiao-xiaocn/nav/blob/main/CloudFlare/Cloudflare%20Workers.md)
