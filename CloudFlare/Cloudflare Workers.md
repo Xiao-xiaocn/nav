@@ -65,12 +65,6 @@ INSERT INTO links (category_id, title, url, description) VALUES (1, 'Google', 'h
     
 5.  清空左侧代码文件（通常是 `index.js` 或 `worker.js`）中的所有默认内容，将下面的**完整代码**粘贴进去：
     **代码**[Worker.js](https://github.com/Xiao-xiaocn/nav/blob/main/CloudFlare/Worker.js)
-    
-
-JavaScript
-
-
-
 6.  点击右上角的 **保存并部署 (Save and deploy)**。
     
 
