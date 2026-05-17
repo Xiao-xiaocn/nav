@@ -5,6 +5,7 @@
 # Cloudflare Worker + D1 导航站 网页端部署指南
 
 本教程将指引你通过 Cloudflare 网页后台，在线创建 D1 数据库并部署 Worker 导航页。
+**网站预览:**[https://www.sink.us.kg](https://www.sink.us.kg)
 
 ## 第一步：创建并初始化 D1 数据库
 
