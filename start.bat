@@ -1,4 +1,4 @@
 @echo off
-cd /d "%~dp0backend"
+cd /d "%~dp0"
 node server.js
 pause

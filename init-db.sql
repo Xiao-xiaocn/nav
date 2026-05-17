@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS links (
   icon_url TEXT,
   clicks INT DEFAULT 0,
   is_private TINYINT(1) DEFAULT 0,
+  sort_order INT DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

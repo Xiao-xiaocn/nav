@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wsl mysql *)",
+      "Bash(npm --version)",
+      "Bash(wsl mysqladmin *)",
+      "Bash(wsl sudo *)",
+      "Bash(wsl hostname *)",
+      "Bash(npm install *)",
+      "Bash(node setup-db.js)",
+      "Bash(wsl bash *)",
+      "Bash(curl -s http://localhost:3001/health)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3306\")",
+      "Bash(curl *)",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const j=JSON.parse\\(d\\);console.log\\('Categories:',j.categories.length,'Links:',j.links.length\\);j.categories.forEach\\(c=>console.log\\(' -',c.id,c.name\\)\\)\")",
+      "Bash(cmd *)",
+      "Bash(node -e ' *)",
+      "Bash(node server.js)",
+      "Bash(findstr \":3001\")",
+      "Bash(taskkill *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(mv backend/.env .env)",
+      "Bash(mv backend/.env.example .env.example)",
+      "Bash(mv backend/package.json package.json)",
+      "Bash(mv backend/package-lock.json package-lock.json)",
+      "Bash(mv backend/server.js server.js)"
+    ]
+  }
+}

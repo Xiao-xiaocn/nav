@@ -18,6 +18,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 
   <style>
     [x-cloak] { display: none !important; }
@@ -29,6 +30,9 @@
     .nav-active { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border-right: 3px solid #2563eb; }
     .dark .nav-active { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; }
     .safe-top-pt { padding-top: env(safe-area-inset-top); }
+    .sortable-ghost { opacity: 0.3; transform: scale(0.95); }
+    .sortable-chosen { box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 50; }
+    .sortable-drag { opacity: 0; }
   </style>
   <script>tailwind.config = { darkMode: 'class' }</script>
 </head>
@@ -42,13 +46,14 @@
            <span class="text-2xl mr-2">🧭</span>
            <span class="font-bold text-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">NanoNav</span>
         </div>
-        <div class="overflow-y-auto h-[calc(100vh-64px)] py-4 px-2 space-y-1">
+        <div class="overflow-y-auto h-[calc(100vh-64px)] py-4 px-2 space-y-1 cat-sort-list">
           <template x-for="cat in categories" :key="cat.id">
-            <a :href="'#cat-' + cat.id" @click.prevent="scrollToCat(cat.id)"
+            <a :href="'#cat-' + cat.id" @click.prevent="scrollToCat(cat.id)" :data-cat-id="cat.id"
                :class="activeCat === cat.id ? 'nav-active' : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400'"
                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer group whitespace-nowrap">
+              <span x-show="isAdmin && editMode" class="drag-handle-cat text-gray-300 dark:text-gray-600 cursor-grab text-xs">⠿</span>
               <span class="text-lg opacity-70">📂</span>
-              <span class="font-medium text-sm" x-text="cat.name"></span>
+              <span class="font-medium text-sm truncate" x-text="cat.name"></span>
               <span class="ml-auto text-xs opacity-40 group-hover:opacity-100 bg-gray-100 dark:bg-gray-700 px-1.5 rounded-full" x-text="getLinks(cat.id).length"></span>
             </a>
           </template>
@@ -155,11 +160,12 @@
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-4 link-grid" :data-cat-id="cat.id">
                   <template x-for="link in getLinks(cat.id)" :key="link.id">
-                    <div class="group relative bg-white dark:bg-gray-800 rounded-xl p-3 border transition-all duration-200 shadow-sm flex gap-3 overflow-hidden"
+                    <div :data-link-id="link.id" class="group relative bg-white dark:bg-gray-800 rounded-xl p-3 border transition-all duration-200 shadow-sm flex gap-3 overflow-hidden"
                          :class="isAdmin && editMode ? 'border-blue-300 dark:border-blue-700 border-dashed bg-blue-50/10' : 'border-gray-100 dark:border-gray-700/50 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:-translate-y-1'">
 
+                      <div x-show="isAdmin && editMode" class="drag-handle-link flex-shrink-0 flex items-center text-gray-300 dark:text-gray-600 cursor-grab text-sm">⠿</div>
                       <div class="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-600">
                          <img :src="getIconUrl(link)" class="w-full h-full object-contain" loading="lazy" @error="$el.style.display='none'; $el.nextElementSibling.style.display='flex'">
                          <div class="hidden w-full h-full items-center justify-center bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-bold text-lg" x-text="link.title.substring(0,1).toUpperCase()"></div>
@@ -167,6 +173,7 @@
 
                       <div class="flex-1 min-w-0 flex flex-col justify-center"> <a :href="isAdmin && editMode ? 'javascript:void(0)' : link.url"
                            :target="isAdmin && editMode ? '' : '_blank'"
+                           rel="noopener noreferrer"
                            @click="isAdmin && editMode ? editLink(link) : null"
                            class="block outline-none cursor-pointer">
                           <div class="flex items-center gap-2">
@@ -213,12 +220,15 @@
      </div>
      <div class="flex-1 overflow-y-auto py-2">
        <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">分类导航</div>
+       <div class="cat-sort-list">
        <template x-for="cat in categories" :key="cat.id">
-         <a :href="'#cat-' + cat.id" @click="mobileMenuOpen = false; scrollToCat(cat.id)" class="flex items-center justify-between px-6 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-200 border-l-4 border-transparent hover:border-blue-500 transition-all">
-           <span class="font-medium" x-text="cat.name"></span>
-           <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-400 px-2 py-0.5 rounded-full" x-text="getLinks(cat.id).length"></span>
+         <a :href="'#cat-' + cat.id" @click="mobileMenuOpen = false; scrollToCat(cat.id)" :data-cat-id="cat.id" class="flex items-center justify-between px-6 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-200 border-l-4 border-transparent hover:border-blue-500 transition-all">
+           <span x-show="isAdmin && editMode" class="drag-handle-cat text-gray-300 dark:text-gray-600 cursor-grab text-xs mr-2">⠿</span>
+           <span class="font-medium truncate flex-1" x-text="cat.name"></span>
+           <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-400 px-2 py-0.5 rounded-full ml-2 shrink-0" x-text="getLinks(cat.id).length"></span>
          </a>
        </template>
+       </div>
      </div>
      <div class="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 space-y-4 safe-bottom-pb">
         <div x-show="isAdmin" class="grid grid-cols-2 gap-2 mb-2">
@@ -252,8 +262,58 @@
     function app() {
       return {
         loading: true, search: '', categories: [], links: [], isAdmin: false, theme: localStorage.theme || 'auto', sidebarOpen: true, mobileMenuOpen: false, activeCat: null, editMode: false, showLogin: false, pwd: '', linkModal: false, formLink: {}, catModal: false, formCat: {},
-        async init() { this.applyTheme(); window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if(this.theme==='auto') this.applyTheme(); }); await this.load(); },
+        async init() { this.applyTheme(); window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if(this.theme==='auto') this.applyTheme(); }); this.$watch('editMode', val => { if (val && this.isAdmin) setTimeout(() => this.initSortable(), 100); }); await this.load(); },
         async load() { this.loading = true; const token = localStorage.getItem('nav_token'); const headers = token ? { 'Authorization': token } : {}; try { const res = await fetch('/api/data', { headers }); const data = await res.json(); this.categories = data.categories || []; this.links = data.links || []; this.isAdmin = data.isAuth; if (!data.isAuth && token) localStorage.removeItem('nav_token'); } catch (e) { console.error(e); } finally { this.loading = false; } },
+        initSortable() {
+          if (!this.isAdmin || !this.editMode) return;
+          if (typeof Sortable === 'undefined') return;
+          // 分类拖动排序 (桌面+移动端)
+          document.querySelectorAll('.cat-sort-list').forEach(list => {
+            if (list._sortable) list._sortable.destroy();
+            list._sortable = Sortable.create(list, {
+              animation: 300,
+              easing: 'cubic-bezier(0.2, 0, 0, 1)',
+              ghostClass: 'sortable-ghost',
+              chosenClass: 'sortable-chosen',
+              dragClass: 'sortable-drag',
+              handle: '.drag-handle-cat',
+              onEnd: (evt) => {
+                const ids = [...evt.target.querySelectorAll('[data-cat-id]')].map(el => parseInt(el.dataset.catId));
+                this.sortSave('category', ids);
+              }
+            });
+          });
+          // 链接拖动排序 (支持跨分类)
+          document.querySelectorAll('.link-grid').forEach(grid => {
+            if (grid._sortable) grid._sortable.destroy();
+            grid._sortable = Sortable.create(grid, {
+              animation: 300,
+              easing: 'cubic-bezier(0.2, 0, 0, 1)',
+              ghostClass: 'sortable-ghost',
+              chosenClass: 'sortable-chosen',
+              dragClass: 'sortable-drag',
+              handle: '.drag-handle-link',
+              group: 'links',
+              onEnd: (evt) => {
+                const fromCatId = parseInt(evt.from.dataset.catId);
+                const toCatId = parseInt(evt.to.dataset.catId);
+                const linkId = parseInt(evt.item.dataset.linkId);
+                const targetIds = [...evt.to.querySelectorAll('[data-link-id]')].map(el => parseInt(el.dataset.linkId));
+                this.sortSave('link', targetIds);
+                if (fromCatId !== toCatId) {
+                  this.linkMove(linkId, toCatId);
+                  setTimeout(() => this.load(), 400);
+                }
+              }
+            });
+          });
+        },
+        async sortSave(type, ids) {
+          await this.req('/api/sort', 'POST', { type, ids });
+        },
+        async linkMove(id, category_id) {
+          await this.req('/api/link/move', 'PUT', { id, category_id });
+        },
         getIconUrl(link) { if (link.icon_url) return link.icon_url; try { const domain = new URL(link.url).hostname; return 'https://api.iowen.cn/favicon/' + domain + '.png'; } catch(e) { return ''; } },
 
         scrollToCat(id) {
@@ -286,7 +346,9 @@
         async exportData() {
             const token = localStorage.getItem('nav_token');
             if(!token) return alert('请先登录');
-            const res = await fetch('/api/export?token=' + encodeURIComponent(token));
+            const res = await fetch('/api/export', {
+                headers: {'Authorization': token}
+            });
             if (!res.ok) { alert('导出失败'); return; }
             const blob = await res.blob();
             const url = window.URL.createObjectURL(blob);
