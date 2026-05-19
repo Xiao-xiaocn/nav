@@ -161,13 +161,14 @@ html{-webkit-tap-highlight-color:transparent}
 .nav-active{background-color:rgba(59,130,246,0.1);color:#2563eb;border-right:3px solid #2563eb}
 .dark .nav-active{background-color:rgba(59,130,246,0.2);color:#60a5fa}
 .safe-top-pt{padding-top:env(safe-area-inset-top)}
+.safe-bottom-pb{padding-bottom:env(safe-area-inset-bottom)}
 .sortable-ghost{opacity:0.3;transform:scale(0.95)}
 .sortable-chosen{box-shadow:0 10px 25px rgba(0,0,0,0.15);z-index:50}
 .sortable-drag{opacity:0}
 </style>
 <script>tailwind.config={darkMode:'class'}</script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 h-screen flex overflow-hidden selection:bg-blue-500/30" x-data="app()" x-init="init()">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 h-screen h-[100dvh] flex overflow-hidden selection:bg-blue-500/30" x-data="app()" x-init="init()">
 
 <aside class="hidden md:block h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur border-r border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden shrink-0 z-20"
   :style="sidebarOpen ? 'width: 240px; opacity: 1;' : 'width: 0px; opacity: 0;'">
@@ -258,7 +259,7 @@ html{-webkit-tap-highlight-color:transparent}
 
   <main class="flex-1 overflow-y-auto scroll-smooth" id="main-scroll" @scroll="onScroll">
     <div class="md:hidden w-full h-[calc(env(safe-area-inset-top)+6rem)]"></div>
-    <div class="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-20">
+    <div class="p-4 md:p-8 max-w-7xl mx-auto pb-[calc(6rem+env(safe-area-inset-bottom,0px))] md:pb-20">
       <div x-show="isAdmin && editMode" x-cloak class="mb-6 flex gap-3 animate-fade-in p-4 bg-white dark:bg-gray-800 rounded-xl border border-blue-100 dark:border-blue-800/30 shadow-sm">
         <button @click="editCat({})" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition">+ 新增分类</button>
         <button @click="editLink({})" class="flex-1 px-4 py-2 bg-blue-50 dark:bg-gray-700 text-blue-600 dark:text-blue-300 rounded-lg text-sm font-bold border border-blue-200 dark:border-gray-600 hover:bg-blue-100 transition">+ 新增链接</button>
@@ -271,7 +272,7 @@ html{-webkit-tap-highlight-color:transparent}
         </div>
 
         <template x-for="cat in filteredCats" :key="cat.id">
-          <div :id="'cat-'+cat.id" class="transition-all duration-500 scroll-mt-32 md:scroll-mt-20">
+          <div :id="'cat-'+cat.id" class="transition-all duration-500 scroll-mt-40 md:scroll-mt-24">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-dashed border-gray-200 dark:border-gray-700">
               <h2 class="text-lg font-bold flex items-center gap-2 text-gray-800 dark:text-gray-100">
                 <span class="text-blue-500">#</span><span x-text="cat.name"></span>
@@ -396,8 +397,8 @@ html{-webkit-tap-highlight-color:transparent}
       async sortSave(type, ids) { await this.req('/api/sort', 'POST', { type, ids }); },
       async linkMove(id, category_id) { await this.req('/api/link/move', 'PUT', { id, category_id }); },
       getIconUrl(link) { if (link.icon_url) return link.icon_url; try { return 'https://api.iowen.cn/favicon/' + new URL(link.url).hostname + '.png'; } catch(e) { return ''; } },
-      scrollToCat(id) { this.activeCat = id; const el = document.getElementById('cat-' + id); const main = document.getElementById('main-scroll'); if(el && main) { const offset = window.innerWidth < 768 ? 160 : 80; main.scrollTo({ top: el.offsetTop - offset, behavior: 'smooth' }); } },
-      onScroll(e) { const main = e.target; for (let cat of this.categories) { const el = document.getElementById('cat-' + cat.id); if (el && el.offsetTop <= main.scrollTop + 180) this.activeCat = cat.id; } },
+      headerHeight() { const mobileHeader = document.querySelector('header'); const desktopNav = document.querySelector('nav.hidden.md\\:flex'); if (window.innerWidth < 768 && mobileHeader) return mobileHeader.offsetHeight; if (desktopNav) return desktopNav.offsetHeight; return 64; }, scrollToCat(id) { this.activeCat = id; const el = document.getElementById('cat-' + id); const main = document.getElementById('main-scroll'); if(el && main) { const offset = this.headerHeight() + 8; main.scrollTo({ top: Math.max(0, el.offsetTop - offset), behavior: 'smooth' }); } },
+      onScroll(e) { const main = e.target; const hh = this.headerHeight() + 12; for (let cat of this.categories) { const el = document.getElementById('cat-' + cat.id); if (el && el.offsetTop <= main.scrollTop + hh) this.activeCat = cat.id; } },
       toggleTheme() { const modes = ['auto', 'light', 'dark']; this.setTheme(modes[(modes.indexOf(this.theme) + 1) % modes.length]); },
       setTheme(mode) { this.theme = mode; localStorage.theme = mode; this.applyTheme(); },
       applyTheme() { let isDark = this.theme === 'dark'; if (this.theme === 'auto') isDark = window.matchMedia('(prefers-color-scheme: dark)').matches; document.documentElement.classList.toggle('dark', isDark); },
