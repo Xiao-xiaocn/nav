@@ -5,6 +5,7 @@
 # Cloudflare Worker + D1 导航站 网页端部署指南
 
 本教程将指引你通过 Cloudflare 网页后台，在线创建 D1 数据库并部署 Worker 导航页。
+**网站预览:**[https://www.sink.us.kg](https://www.sink.us.kg)
 
 ## 第一步：创建并初始化 D1 数据库
 
@@ -64,12 +65,7 @@ INSERT INTO links (category_id, title, url, description) VALUES (1, 'Google', 'h
 4.  部署成功后，点击 **编辑代码 (Edit code)** 进入在线编辑器。
     
 5.  清空左侧代码文件（通常是 `index.js` 或 `worker.js`）中的所有默认内容，将下面的**完整代码**粘贴进去：
-    
-
-JavaScript
-
-
-
+    **代码**[Worker.js](https://github.com/Xiao-xiaocn/nav/blob/main/CloudFlare/Worker.js)
 6.  点击右上角的 **保存并部署 (Save and deploy)**。
     
 
